@@ -13,7 +13,7 @@ import * as Keychain from 'react-native-keychain';
 import {AxiosContext} from '../context/AxiosContext';
 
 const Login = () => {
-  const [email, setEmail] = useState('');
+  const [username, setUsername] = useState('');
 
   const [password, setPassword] = useState('');
   const authContext = useContext(AuthContext);
@@ -21,23 +21,23 @@ const Login = () => {
 
   const onLogin = async () => {
     try {
-      const response = await publicAxios.post('/login', {
-        email,
+      const response = await publicAxios.post('/login/', {
+        username,
         password,
       });
 
-      const {accessToken, refreshToken} = response.data;
+      const {access, refresh} = response.data;
       authContext.setAuthState({
-        accessToken,
-        refreshToken,
+        access,
+        refresh,
         authenticated: true,
       });
 
       await Keychain.setGenericPassword(
         'token',
         JSON.stringify({
-          accessToken,
-          refreshToken,
+          access,
+          refresh,
         }),
       );
     } catch (error) {
@@ -47,16 +47,16 @@ const Login = () => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <Text style={styles.logo}>Cats</Text>
+      <Text style={styles.logo}>Biometric User's Login</Text>
       <View style={styles.form}>
         <TextInput
           style={styles.input}
-          placeholder="Email"
+          placeholder="Username"
           placeholderTextColor="#fefefe"
-          keyboardType="email-address"
+          // keyboardType="username"
           autoCapitalize="none"
-          onChangeText={text => setEmail(text)}
-          value={email}
+          onChangeText={text => setUsername(text)}
+          value={username}
         />
 
         <TextInput
@@ -69,6 +69,7 @@ const Login = () => {
         />
       </View>
       <Button title="Login" style={styles.button} onPress={() => onLogin()} />
+      <Button title="Enter Biometric Login" style={styles.button} />
     </SafeAreaView>
   );
 };
@@ -82,7 +83,7 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   logo: {
-    fontSize: 60,
+    fontSize: 20,
     color: '#fff',
     margin: '20%',
   },

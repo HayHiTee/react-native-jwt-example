@@ -14,7 +14,8 @@ const Dashboard = () => {
     setStatus('loading');
     try {
       const response = await axiosContext.authAxios.get('/cat');
-      setImage(response.data);
+      setImage(response.data.photo);
+      console.log(response.data);
       setStatus('success');
     } catch (error) {
       setStatus('error');

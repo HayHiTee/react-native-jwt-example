@@ -11,11 +11,11 @@ const AxiosProvider = ({children}) => {
   const authContext = useContext(AuthContext);
 
   const authAxios = axios.create({
-    baseURL: 'http://localhost:3000/api',
+    baseURL: 'http://localhost:8000/api',
   });
 
   const publicAxios = axios.create({
-    baseURL: 'http://localhost:3000/api',
+    baseURL: 'http://localhost:8000/api',
   });
 
   authAxios.interceptors.request.use(
@@ -33,30 +33,31 @@ const AxiosProvider = ({children}) => {
 
   const refreshAuthLogic = failedRequest => {
     const data = {
-      refreshToken: authContext.authState.refreshToken,
+      refresh: authContext.authState.refresh,
     };
 
     const options = {
       method: 'POST',
       data,
-      url: 'http://localhost:3000/api/refreshToken',
+      url: 'http://localhost:8000/api/token/refresh/',
+      // headers: {'Content-Type': 'application/json'},
     };
 
     return axios(options)
       .then(async tokenRefreshResponse => {
         failedRequest.response.config.headers.Authorization =
-          'Bearer ' + tokenRefreshResponse.data.accessToken;
+          'Bearer ' + tokenRefreshResponse.data.access;
 
         authContext.setAuthState({
           ...authContext.authState,
-          accessToken: tokenRefreshResponse.data.accessToken,
+          access: tokenRefreshResponse.data.access,
         });
 
         await Keychain.setGenericPassword(
           'token',
           JSON.stringify({
-            accessToken: tokenRefreshResponse.data.accessToken,
-            refreshToken: authContext.authState.refreshToken,
+            access: tokenRefreshResponse.data.access,
+            refresh: authContext.authState.refresh,
           }),
         );
 
@@ -64,8 +65,8 @@ const AxiosProvider = ({children}) => {
       })
       .catch(e => {
         authContext.setAuthState({
-          accessToken: null,
-          refreshToken: null,
+          access: null,
+          refresh: null,
         });
       });
   };
